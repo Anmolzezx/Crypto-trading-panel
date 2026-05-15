@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { logger } from "./logger";
+import { BinanceStreamManager, type UpstreamPayload } from "./binanceStreamManager";
 import type { ClientMessage, ServerMessage } from "./types";
 
 const PORT = Number(process.env.PORT ?? 8080);
@@ -15,6 +16,11 @@ app.get("/health", (_req, res) => {
 
 const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
+
+const binance = new BinanceStreamManager();
+binance.on("payload", ({ symbol, stream, payload }: UpstreamPayload) => {
+  logger.info("upstream payload", { symbol, stream, payload });
+});
 
 function send(ws: WebSocket, msg: ServerMessage): void {
   if (ws.readyState === WebSocket.OPEN) {
@@ -65,4 +71,5 @@ wss.on("connection", (ws) => {
 
 httpServer.listen(PORT, () => {
   logger.info(`backend listening on http://localhost:${PORT}`);
+  binance.acquire("btcusdt", "trade");
 });

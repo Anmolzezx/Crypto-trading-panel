@@ -5,6 +5,7 @@ import { Chart } from '../components/Chart';
 import { PriceHeader } from '../components/PriceHeader';
 import { StatsBar } from '../components/StatsBar';
 import { SymbolPicker } from '../components/SymbolPicker';
+import { TradePanel } from '../components/TradePanel';
 import { scale } from '../helpers/scaler';
 import { useMarketSocket } from '../hooks/useMarketSocket';
 import { useMarketStore } from '../store/marketStore';
@@ -155,6 +156,11 @@ export function HomeScreen() {
           )}
         </View>
       </ScrollView>
+
+      <TradePanel
+        symbol={currentSymbol}
+        lastPrice={ticker?.lastPrice ?? null}
+      />
     </SafeAreaView>
   );
 }

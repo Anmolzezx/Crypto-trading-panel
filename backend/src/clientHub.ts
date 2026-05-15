@@ -1,7 +1,7 @@
 import type { WebSocket } from "ws";
 import type { BinanceStreamManager, UpstreamPayload } from "./binanceStreamManager";
 import type { StreamName } from "./types";
-import { normalize, normalizeRestKline } from "./normalize";
+import { normalize, normalizeRestKline, normalizeRestTicker } from "./normalize";
 import { logger } from "./logger";
 
 type SubKey = `${string}@${StreamName}`;
@@ -51,6 +51,11 @@ export class ClientHub {
           logger.warn("kline backfill failed", { symbol, err: String(err) });
         });
       }
+      if (stream === "ticker") {
+        this.prefetchTicker(ws, symbol).catch((err) => {
+          logger.warn("ticker prefetch failed", { symbol, err: String(err) });
+        });
+      }
 
       this.binance.acquire(symbol, stream);
     }
@@ -64,6 +69,14 @@ export class ClientHub {
       if (!msg) continue;
       ws.send(JSON.stringify(msg));
     }
+  }
+
+  private async prefetchTicker(ws: WebSocket, symbol: string): Promise<void> {
+    const data = await this.binance.fetchTicker24h(symbol);
+    const msg = normalizeRestTicker(data);
+    if (!msg) return;
+    logger.info("ticker prefetched", { symbol });
+    ws.send(JSON.stringify(msg));
   }
 
   unsubscribe(ws: WebSocket, symbol: string): void {

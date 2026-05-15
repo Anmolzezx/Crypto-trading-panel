@@ -108,3 +108,19 @@ export function normalizeRestKline(symbol: string, row: unknown): KlineMessage |
     closed: true,
   };
 }
+
+export function normalizeRestTicker(data: unknown): TickerMessage | null {
+  if (!data || typeof data !== "object") return null;
+  const d = data as Record<string, unknown>;
+  if (typeof d.symbol !== "string") return null;
+  return {
+    type: "ticker",
+    symbol: d.symbol,
+    lastPrice: toNum(d.lastPrice),
+    change24h: toNum(d.priceChange),
+    changePct: toNum(d.priceChangePercent),
+    high: toNum(d.highPrice),
+    low: toNum(d.lowPrice),
+    volume: toNum(d.volume),
+  };
+}

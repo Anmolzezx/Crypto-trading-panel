@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
-import { Text, TextStyle, View, ViewStyle, useWindowDimensions } from 'react-native';
+import { View, ViewStyle, useWindowDimensions } from 'react-native';
 import Svg, { Polyline } from 'react-native-svg';
 import type { KlineMessage } from '../types';
 import { useColors } from '../styles/colors';
-import { texts } from '../styles/texts';
 
 const HORIZONTAL_PADDING = 16;
 const DEFAULT_HEIGHT = 200;
@@ -16,7 +15,7 @@ interface ChartProps {
 export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
   const colors = useColors();
   const { width: windowWidth } = useWindowDimensions();
-  const styles = useMemo(() => createStyles(colors, height), [colors, height]);
+  const styles = useMemo(() => createStyles(), []);
 
   const chartWidth = windowWidth - HORIZONTAL_PADDING * 2;
 
@@ -46,11 +45,7 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
   const stroke = isUp ? colors.Alert.Success[100] : colors.Alert.Error[100];
 
   if (candles.length < 2) {
-    return (
-      <View style={styles.placeholder}>
-        <Text style={styles.placeholderText}>building chart…</Text>
-      </View>
-    );
+    return null;
   }
 
   return (
@@ -67,28 +62,13 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
   );
 }
 
-type Colors = ReturnType<typeof useColors>;
-
 interface ChartStyles {
   container: ViewStyle;
-  placeholder: ViewStyle;
-  placeholderText: TextStyle;
 }
 
-const createStyles = (colors: Colors, height: number): ChartStyles => ({
+const createStyles = (): ChartStyles => ({
   container: {
     paddingHorizontal: HORIZONTAL_PADDING,
     paddingVertical: 8,
-  },
-  placeholder: {
-    height,
-    paddingHorizontal: HORIZONTAL_PADDING,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    ...texts.body.small.regular,
-    color: colors.Greyscale[400],
-    fontStyle: 'italic',
   },
 });

@@ -76,6 +76,15 @@ export class BinanceStreamManager extends EventEmitter {
     return (await res.json()) as unknown[];
   }
 
+  async fetchTicker24h(symbol: string): Promise<unknown> {
+    const url = `${BINANCE_REST_BASE}/ticker/24hr?symbol=${symbol.toUpperCase()}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`binance REST ${res.status}: ${res.statusText}`);
+    }
+    return await res.json();
+  }
+
   private connect(u: Upstream): void {
     const key = makeKey(u.symbol, u.stream);
     const url = `${BINANCE_WS_BASE}/${key}`;

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { ScrollView, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { PriceHeader } from '../components/PriceHeader';
+import { StatsBar } from '../components/StatsBar';
 import { useMarketSocket } from '../hooks/useMarketSocket';
 import { useMarketStore } from '../store/marketStore';
 import { useColors } from '../styles/colors';
@@ -8,14 +10,13 @@ import { texts } from '../styles/texts';
 
 const WS_URL = 'ws://localhost:8080';
 
-export function DebugScreen() {
+export function HomeScreen() {
   const colors = useColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const currentSymbol = useMarketStore(s => s.currentSymbol);
   const ticker = useMarketStore(s => s.ticker);
   const recentTrades = useMarketStore(s => s.recentTrades);
-  const candleCount = useMarketStore(s => s.candles.length);
   const ingest = useMarketStore(s => s.ingest);
 
   const { state, subscribe } = useMarketSocket({
@@ -36,39 +37,25 @@ export function DebugScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>marketStore debug</Text>
-        <Text style={styles[`state_${state}`]}>{state}</Text>
+      <View style={styles.statusRow}>
+        <View style={styles[`statusDot_${state}`]} />
+        <Text style={styles.statusLabel}>{state}</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>symbol</Text>
-        <Text style={styles.value}>{currentSymbol}</Text>
-      </View>
+      <PriceHeader
+        symbol={currentSymbol}
+        lastPrice={ticker?.lastPrice ?? null}
+        changePct={ticker?.changePct ?? null}
+      />
 
-      <View style={styles.section}>
-        <Text style={styles.label}>last price</Text>
-        <Text style={styles.priceValue}>
-          {ticker ? `$${ticker.lastPrice.toLocaleString()}` : '—'}
-        </Text>
-        {ticker ? (
-          <Text
-            style={
-              ticker.changePct >= 0 ? styles.changePositive : styles.changeNegative
-            }
-          >
-            {ticker.changePct >= 0 ? '+' : ''}
-            {ticker.changePct.toFixed(2)}% (24h)
-          </Text>
-        ) : null}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.label}>candles received: {candleCount}</Text>
-      </View>
+      <StatsBar
+        high={ticker?.high ?? null}
+        low={ticker?.low ?? null}
+        volume={ticker?.volume ?? null}
+      />
 
       <View style={styles.tradesHeader}>
-        <Text style={styles.label}>recent trades ({recentTrades.length})</Text>
+        <Text style={styles.tradesHeaderLabel}>Recent Trades</Text>
       </View>
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
         {recentTrades.length === 0 ? (
@@ -88,21 +75,16 @@ export function DebugScreen() {
 
 type Colors = ReturnType<typeof useColors>;
 
-interface DebugStyles {
+interface HomeStyles {
   container: ViewStyle;
-  header: ViewStyle;
-  title: TextStyle;
-  state_idle: TextStyle;
-  state_connecting: TextStyle;
-  state_open: TextStyle;
-  state_reconnecting: TextStyle;
-  section: ViewStyle;
-  label: TextStyle;
-  value: TextStyle;
-  priceValue: TextStyle;
-  changePositive: TextStyle;
-  changeNegative: TextStyle;
+  statusRow: ViewStyle;
+  statusDot_idle: ViewStyle;
+  statusDot_connecting: ViewStyle;
+  statusDot_open: ViewStyle;
+  statusDot_reconnecting: ViewStyle;
+  statusLabel: TextStyle;
   tradesHeader: ViewStyle;
+  tradesHeaderLabel: TextStyle;
   list: ViewStyle;
   listContent: ViewStyle;
   empty: TextStyle;
@@ -111,72 +93,47 @@ interface DebugStyles {
   tradeQty: TextStyle;
 }
 
-const createStyles = (colors: Colors): DebugStyles => ({
+const dotBase: ViewStyle = {
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  marginRight: 6,
+};
+
+const createStyles = (colors: Colors): HomeStyles => ({
   container: {
     flex: 1,
     backgroundColor: colors.Greyscale[0],
   },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.Greyscale[100],
+  statusRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  title: {
-    ...texts.heading.heading6,
-    color: colors.Greyscale[900],
-  },
-  state_idle: {
-    ...texts.body.small.medium,
-    color: colors.Greyscale[400],
-  },
-  state_connecting: {
-    ...texts.body.small.medium,
-    color: colors.Alert.Warning[100],
-  },
-  state_open: {
-    ...texts.body.small.medium,
-    color: colors.Alert.Success[100],
-  },
-  state_reconnecting: {
-    ...texts.body.small.medium,
-    color: colors.Alert.Error[100],
-  },
-  section: {
     paddingHorizontal: 16,
     paddingTop: 12,
   },
-  label: {
+  statusDot_idle: { ...dotBase, backgroundColor: colors.Greyscale[400] },
+  statusDot_connecting: {
+    ...dotBase,
+    backgroundColor: colors.Alert.Warning[100],
+  },
+  statusDot_open: { ...dotBase, backgroundColor: colors.Alert.Success[100] },
+  statusDot_reconnecting: {
+    ...dotBase,
+    backgroundColor: colors.Alert.Error[100],
+  },
+  statusLabel: {
     ...texts.body.extraSmall.regular,
-    color: colors.Greyscale[400],
-  },
-  value: {
-    ...texts.heading.heading5,
-    color: colors.Greyscale[900],
-    marginTop: 2,
-  },
-  priceValue: {
-    ...texts.heading.heading2,
-    color: colors.Greyscale[900],
-    marginTop: 2,
-  },
-  changePositive: {
-    ...texts.body.medium.semibold,
-    color: colors.Alert.Success[100],
-    marginTop: 4,
-  },
-  changeNegative: {
-    ...texts.body.medium.semibold,
-    color: colors.Alert.Error[100],
-    marginTop: 4,
+    color: colors.Greyscale[500],
+    textTransform: 'lowercase',
   },
   tradesHeader: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 20,
     paddingBottom: 8,
+  },
+  tradesHeaderLabel: {
+    ...texts.body.small.semibold,
+    color: colors.Greyscale[900],
   },
   list: {
     flex: 1,

@@ -1,12 +1,12 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from './app/theme/ThemeContext';
-import { DebugScreen } from './app/screens/HomeScreen';
+import { HomeScreen } from './app/screens/HomeScreen';
 
 function App() {
   return (
     <ThemeProvider>
       <SafeAreaProvider>
-        <DebugScreen />
+        <HomeScreen />
       </SafeAreaProvider>
     </ThemeProvider>
   );

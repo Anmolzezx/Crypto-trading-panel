@@ -1,0 +1,31 @@
+# node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env
+.env
+.env.local
+.env.*.local
+
+# build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# react native
+mobile/ios/Pods/
+mobile/ios/build/
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/local.properties
+mobile/.expo/
+
+# editor / os
+.DS_Store
+.vscode/
+.idea/
+*.swp

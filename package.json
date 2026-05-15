@@ -1,0 +1,19 @@
+{
+  "name": "crypto-trading-panel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Real-time crypto trading panel — Node.js relay + React Native client streaming Binance market data.",
+  "workspaces": [
+    "backend",
+    "mobile"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace backend",
+    "build:backend": "npm run build --workspace backend",
+    "ios": "npm run ios --workspace mobile",
+    "android": "npm run android --workspace mobile"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

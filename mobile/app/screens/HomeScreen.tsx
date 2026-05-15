@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Chart } from '../components/Chart';
 import { PriceHeader } from '../components/PriceHeader';
 import { StatsBar } from '../components/StatsBar';
+import { SymbolPicker } from '../components/SymbolPicker';
+import { scale } from '../helpers/scaler';
 import { useMarketSocket } from '../hooks/useMarketSocket';
 import { useMarketStore } from '../store/marketStore';
 import { useColors } from '../styles/colors';
@@ -16,34 +18,43 @@ export function HomeScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const currentSymbol = useMarketStore(s => s.currentSymbol);
+  const setSymbol = useMarketStore(s => s.setSymbol);
   const ticker = useMarketStore(s => s.ticker);
   const recentTrades = useMarketStore(s => s.recentTrades);
   const candles = useMarketStore(s => s.candles);
   const ingest = useMarketStore(s => s.ingest);
 
-  const { state, subscribe } = useMarketSocket({
+  const { state, subscribe, unsubscribe } = useMarketSocket({
     url: WS_URL,
     onMessage: ingest,
   });
 
-  const subscribedRef = useRef(false);
+  const subscribedSymbolRef = useRef<string | null>(null);
   useEffect(() => {
-    if (state === 'open' && !subscribedRef.current) {
-      subscribedRef.current = true;
-      subscribe(currentSymbol, ['trade', 'kline_1m', 'ticker']);
-    }
     if (state !== 'open') {
-      subscribedRef.current = false;
+      subscribedSymbolRef.current = null;
+      return;
     }
-  }, [state, subscribe, currentSymbol]);
+    const previous = subscribedSymbolRef.current;
+    if (previous === currentSymbol) return;
+    if (previous) {
+      unsubscribe(previous);
+    }
+    subscribe(currentSymbol, ['trade', 'kline_1m', 'ticker']);
+    subscribedSymbolRef.current = currentSymbol;
+  }, [state, subscribe, unsubscribe, currentSymbol]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.statusRow}>
-        <View style={styles[`statusDot_${state}`]} />
-        <Text style={styles.statusLabel}>{state}</Text>
-      </View>
+      {state !== 'open' ? (
+        <View style={styles.statusRow}>
+          <View style={styles[`statusDot_${state}`]} />
+          <Text style={styles.statusLabel}>{state}</Text>
+        </View>
+      ) : null}
 
+      <SymbolPicker current={currentSymbol} onSelect={setSymbol} />
+<ScrollView>
       <PriceHeader
         symbol={currentSymbol}
         lastPrice={ticker?.lastPrice ?? null}
@@ -61,7 +72,7 @@ export function HomeScreen() {
       <View style={styles.tradesHeader}>
         <Text style={styles.tradesHeaderLabel}>Recent Trades</Text>
       </View>
-      <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+      <ScrollView scrollEnabled={false} style={styles.list} contentContainerStyle={styles.listContent}>
         {recentTrades.length === 0 ? (
           <Text style={styles.empty}>waiting for trades…</Text>
         ) : (
@@ -72,6 +83,7 @@ export function HomeScreen() {
             </View>
           ))
         )}
+      </ScrollView>
       </ScrollView>
     </SafeAreaView>
   );
@@ -98,10 +110,10 @@ interface HomeStyles {
 }
 
 const dotBase: ViewStyle = {
-  width: 8,
-  height: 8,
-  borderRadius: 4,
-  marginRight: 6,
+  width: scale(8),
+  height: scale(8),
+  borderRadius: scale(4),
+  marginRight: scale(6),
 };
 
 const createStyles = (colors: Colors): HomeStyles => ({
@@ -112,8 +124,8 @@ const createStyles = (colors: Colors): HomeStyles => ({
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: scale(16),
+    paddingTop: scale(12),
   },
   statusDot_idle: { ...dotBase, backgroundColor: colors.Greyscale[400] },
   statusDot_connecting: {
@@ -131,9 +143,9 @@ const createStyles = (colors: Colors): HomeStyles => ({
     textTransform: 'lowercase',
   },
   tradesHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 8,
+    paddingHorizontal: scale(16),
+    paddingTop: scale(20),
+    paddingBottom: scale(8),
   },
   tradesHeaderLabel: {
     ...texts.body.small.semibold,
@@ -143,7 +155,7 @@ const createStyles = (colors: Colors): HomeStyles => ({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
   },
   empty: {
     ...texts.body.small.regular,
@@ -153,7 +165,7 @@ const createStyles = (colors: Colors): HomeStyles => ({
   tradeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
+    paddingVertical: scale(6),
     borderBottomWidth: 0.3,
     borderBottomColor: colors.Greyscale[100],
   },

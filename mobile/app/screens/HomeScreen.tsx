@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { ScrollView, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Chart } from '../components/Chart';
 import { PriceHeader } from '../components/PriceHeader';
 import { StatsBar } from '../components/StatsBar';
 import { useMarketSocket } from '../hooks/useMarketSocket';
@@ -17,6 +18,7 @@ export function HomeScreen() {
   const currentSymbol = useMarketStore(s => s.currentSymbol);
   const ticker = useMarketStore(s => s.ticker);
   const recentTrades = useMarketStore(s => s.recentTrades);
+  const candles = useMarketStore(s => s.candles);
   const ingest = useMarketStore(s => s.ingest);
 
   const { state, subscribe } = useMarketSocket({
@@ -47,6 +49,8 @@ export function HomeScreen() {
         lastPrice={ticker?.lastPrice ?? null}
         changePct={ticker?.changePct ?? null}
       />
+
+      <Chart candles={candles} />
 
       <StatsBar
         high={ticker?.high ?? null}

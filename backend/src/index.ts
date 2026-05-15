@@ -3,7 +3,8 @@ import express from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { logger } from "./logger";
-import { BinanceStreamManager, type UpstreamPayload } from "./binanceStreamManager";
+import { BinanceStreamManager } from "./binanceStreamManager";
+import { ClientHub } from "./clientHub";
 import type { ClientMessage, ServerMessage } from "./types";
 
 const PORT = Number(process.env.PORT ?? 8080);
@@ -18,9 +19,7 @@ const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 
 const binance = new BinanceStreamManager();
-binance.on("payload", ({ symbol, stream, payload }: UpstreamPayload) => {
-  logger.info("upstream payload", { symbol, stream, payload });
-});
+const hub = new ClientHub(binance);
 
 function send(ws: WebSocket, msg: ServerMessage): void {
   if (ws.readyState === WebSocket.OPEN) {
@@ -30,6 +29,7 @@ function send(ws: WebSocket, msg: ServerMessage): void {
 
 wss.on("connection", (ws) => {
   logger.info("client connected");
+  hub.add(ws);
   send(ws, { type: "status", state: "connected" });
 
   ws.on("message", (raw) => {
@@ -51,8 +51,10 @@ wss.on("connection", (ws) => {
         send(ws, { type: "pong", ts: Date.now() });
         return;
       case "subscribe":
+        hub.subscribe(ws, msg.symbol, msg.streams);
+        return;
       case "unsubscribe":
-        logger.warn("subscribe/unsubscribe not wired yet", { action: msg.action });
+        hub.unsubscribe(ws, msg.symbol);
         return;
       default:
         logger.warn("unknown action", { msg });
@@ -62,6 +64,7 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     logger.info("client disconnected");
+    hub.remove(ws);
   });
 
   ws.on("error", (err) => {
@@ -71,5 +74,4 @@ wss.on("connection", (ws) => {
 
 httpServer.listen(PORT, () => {
   logger.info(`backend listening on http://localhost:${PORT}`);
-  binance.acquire("btcusdt", "trade");
 });

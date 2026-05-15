@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { ScrollView, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Chart } from '../components/Chart';
 import { PriceHeader } from '../components/PriceHeader';
@@ -15,7 +15,6 @@ const WS_URL = 'ws://localhost:8080';
 
 export function HomeScreen() {
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const currentSymbol = useMarketStore(s => s.currentSymbol);
   const setSymbol = useMarketStore(s => s.setSymbol);
@@ -44,6 +43,74 @@ export function HomeScreen() {
     subscribedSymbolRef.current = currentSymbol;
   }, [state, subscribe, unsubscribe, currentSymbol]);
 
+  const styles = useMemo(() => {
+    const dot = {
+      width: scale(8),
+      height: scale(8),
+      borderRadius: scale(4),
+      marginRight: scale(6),
+    };
+    return {
+      container: {
+        flex: 1,
+        backgroundColor: colors.Greyscale[0],
+      },
+      statusRow: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        paddingHorizontal: scale(16),
+        paddingTop: scale(12),
+      },
+      statusDot_idle: { ...dot, backgroundColor: colors.Greyscale[400] },
+      statusDot_connecting: {
+        ...dot,
+        backgroundColor: colors.Alert.Warning[100],
+      },
+      statusDot_open: { ...dot, backgroundColor: colors.Alert.Success[100] },
+      statusDot_reconnecting: {
+        ...dot,
+        backgroundColor: colors.Alert.Error[100],
+      },
+      statusLabel: {
+        ...texts.body.extraSmall.regular,
+        color: colors.Greyscale[500],
+        textTransform: 'lowercase' as const,
+      },
+      tradesHeader: {
+        paddingHorizontal: scale(16),
+        paddingTop: scale(20),
+        paddingBottom: scale(8),
+      },
+      tradesHeaderLabel: {
+        ...texts.body.small.semibold,
+        color: colors.Greyscale[900],
+      },
+      listContent: {
+        paddingHorizontal: scale(16),
+      },
+      empty: {
+        ...texts.body.small.regular,
+        color: colors.Greyscale[400],
+        fontStyle: 'italic' as const,
+      },
+      tradeRow: {
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between' as const,
+        paddingVertical: scale(6),
+        borderBottomWidth: 0.3,
+        borderBottomColor: colors.Greyscale[100],
+      },
+      tradePrice: {
+        ...texts.body.small.medium,
+        color: colors.Greyscale[900],
+      },
+      tradeQty: {
+        ...texts.body.small.regular,
+        color: colors.Greyscale[500],
+      },
+    };
+  }, [colors]);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {state !== 'open' ? (
@@ -54,127 +121,40 @@ export function HomeScreen() {
       ) : null}
 
       <SymbolPicker current={currentSymbol} onSelect={setSymbol} />
-<ScrollView>
-      <PriceHeader
-        symbol={currentSymbol}
-        lastPrice={ticker?.lastPrice ?? null}
-        changePct={ticker?.changePct ?? null}
-      />
 
-      <Chart candles={candles} />
+      <ScrollView contentInsetAdjustmentBehavior="never">
+        <PriceHeader
+          symbol={currentSymbol}
+          lastPrice={ticker?.lastPrice ?? null}
+          changePct={ticker?.changePct ?? null}
+        />
 
-      <StatsBar
-        high={ticker?.high ?? null}
-        low={ticker?.low ?? null}
-        volume={ticker?.volume ?? null}
-      />
+        <Chart candles={candles} />
 
-      <View style={styles.tradesHeader}>
-        <Text style={styles.tradesHeaderLabel}>Recent Trades</Text>
-      </View>
-      <ScrollView scrollEnabled={false} style={styles.list} contentContainerStyle={styles.listContent}>
-        {recentTrades.length === 0 ? (
-          <Text style={styles.empty}>waiting for trades…</Text>
-        ) : (
-          recentTrades.map((t, i) => (
-            <View key={i} style={styles.tradeRow}>
-              <Text style={styles.tradePrice}>${t.price.toLocaleString()}</Text>
-              <Text style={styles.tradeQty}>{t.qty.toFixed(6)}</Text>
-            </View>
-          ))
-        )}
-      </ScrollView>
+        <StatsBar
+          high={ticker?.high ?? null}
+          low={ticker?.low ?? null}
+          volume={ticker?.volume ?? null}
+        />
+
+        <View style={styles.tradesHeader}>
+          <Text style={styles.tradesHeaderLabel}>Recent Trades</Text>
+        </View>
+        <View style={styles.listContent}>
+          {recentTrades.length === 0 ? (
+            <Text style={styles.empty}>waiting for trades…</Text>
+          ) : (
+            recentTrades.map((t, i) => (
+              <View key={i} style={styles.tradeRow}>
+                <Text style={styles.tradePrice}>
+                  ${t.price.toLocaleString()}
+                </Text>
+                <Text style={styles.tradeQty}>{t.qty.toFixed(6)}</Text>
+              </View>
+            ))
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-type Colors = ReturnType<typeof useColors>;
-
-interface HomeStyles {
-  container: ViewStyle;
-  statusRow: ViewStyle;
-  statusDot_idle: ViewStyle;
-  statusDot_connecting: ViewStyle;
-  statusDot_open: ViewStyle;
-  statusDot_reconnecting: ViewStyle;
-  statusLabel: TextStyle;
-  tradesHeader: ViewStyle;
-  tradesHeaderLabel: TextStyle;
-  list: ViewStyle;
-  listContent: ViewStyle;
-  empty: TextStyle;
-  tradeRow: ViewStyle;
-  tradePrice: TextStyle;
-  tradeQty: TextStyle;
-}
-
-const dotBase: ViewStyle = {
-  width: scale(8),
-  height: scale(8),
-  borderRadius: scale(4),
-  marginRight: scale(6),
-};
-
-const createStyles = (colors: Colors): HomeStyles => ({
-  container: {
-    flex: 1,
-    backgroundColor: colors.Greyscale[0],
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: scale(16),
-    paddingTop: scale(12),
-  },
-  statusDot_idle: { ...dotBase, backgroundColor: colors.Greyscale[400] },
-  statusDot_connecting: {
-    ...dotBase,
-    backgroundColor: colors.Alert.Warning[100],
-  },
-  statusDot_open: { ...dotBase, backgroundColor: colors.Alert.Success[100] },
-  statusDot_reconnecting: {
-    ...dotBase,
-    backgroundColor: colors.Alert.Error[100],
-  },
-  statusLabel: {
-    ...texts.body.extraSmall.regular,
-    color: colors.Greyscale[500],
-    textTransform: 'lowercase',
-  },
-  tradesHeader: {
-    paddingHorizontal: scale(16),
-    paddingTop: scale(20),
-    paddingBottom: scale(8),
-  },
-  tradesHeaderLabel: {
-    ...texts.body.small.semibold,
-    color: colors.Greyscale[900],
-  },
-  list: {
-    flex: 1,
-  },
-  listContent: {
-    paddingHorizontal: scale(16),
-  },
-  empty: {
-    ...texts.body.small.regular,
-    color: colors.Greyscale[400],
-    fontStyle: 'italic',
-  },
-  tradeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: scale(6),
-    borderBottomWidth: 0.3,
-    borderBottomColor: colors.Greyscale[100],
-  },
-  tradePrice: {
-    ...texts.body.small.medium,
-    color: colors.Greyscale[900],
-  },
-  tradeQty: {
-    ...texts.body.small.regular,
-    color: colors.Greyscale[500],
-  },
-});

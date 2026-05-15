@@ -1,11 +1,5 @@
 import { useMemo } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useColors } from '../styles/colors';
 
 interface Pair {
@@ -28,14 +22,47 @@ interface SymbolPickerProps {
 
 export function SymbolPicker({ current, onSelect }: SymbolPickerProps) {
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const styles = useMemo(
+    () => ({
+      container: {
+        flexDirection: 'row' as const,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        gap: 6,
+      },
+      pill: {
+        height: 30,
+        paddingHorizontal: 14,
+        borderRadius: 999,
+        backgroundColor: colors.Greyscale[50],
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+      },
+      pillActive: {
+        height: 30,
+        paddingHorizontal: 14,
+        borderRadius: 999,
+        backgroundColor: colors.Greyscale[900],
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+      },
+      label: {
+        fontSize: 12,
+        fontWeight: '600' as const,
+        color: colors.Greyscale[500],
+      },
+      labelActive: {
+        fontSize: 12,
+        fontWeight: '600' as const,
+        color: colors.Greyscale[0],
+      },
+    }),
+    [colors],
+  );
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
+    <View style={styles.container}>
       {PAIRS.map(pair => {
         const active = pair.symbol === current;
         return (
@@ -50,50 +77,6 @@ export function SymbolPicker({ current, onSelect }: SymbolPickerProps) {
           </Pressable>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
-
-type Colors = ReturnType<typeof useColors>;
-
-interface SymbolPickerStyles {
-  container: ViewStyle;
-  pill: ViewStyle;
-  pillActive: ViewStyle;
-  label: TextStyle;
-  labelActive: TextStyle;
-}
-
-const createStyles = (colors: Colors): SymbolPickerStyles => ({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 6,
-  },
-  pill: {
-    height: 30,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: colors.Greyscale[50],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pillActive: {
-    height: 30,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: colors.Greyscale[900],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.Greyscale[500],
-  },
-  labelActive: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.Greyscale[0],
-  },
-});

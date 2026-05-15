@@ -1,7 +1,7 @@
 import type { WebSocket } from "ws";
 import type { BinanceStreamManager, UpstreamPayload } from "./binanceStreamManager";
 import type { StreamName } from "./types";
-import { normalize } from "./normalize";
+import { normalize, normalizeRestKline } from "./normalize";
 import { logger } from "./logger";
 
 type SubKey = `${string}@${StreamName}`;
@@ -45,7 +45,24 @@ export class ClientHub {
       const key = makeSubKey(symbol, stream);
       if (client.subs.has(key)) continue;
       client.subs.add(key);
+
+      if (stream === "kline_1m") {
+        this.backfillKline(ws, symbol).catch((err) => {
+          logger.warn("kline backfill failed", { symbol, err: String(err) });
+        });
+      }
+
       this.binance.acquire(symbol, stream);
+    }
+  }
+
+  private async backfillKline(ws: WebSocket, symbol: string): Promise<void> {
+    const rows = await this.binance.fetchHistoricalKlines(symbol);
+    logger.info("kline backfill fetched", { symbol, count: rows.length });
+    for (const row of rows) {
+      const msg = normalizeRestKline(symbol, row);
+      if (!msg) continue;
+      ws.send(JSON.stringify(msg));
     }
   }
 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StatusBar } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 
 type ThemeContextType = {
   isDark: boolean;
@@ -48,7 +48,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsDarkState(value);
 
       StatusBar.setBarStyle(value ? 'light-content' : 'dark-content', true);
-      StatusBar.setBackgroundColor(value ? '#1a1a1a' : '#ffffff', true);
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor(value ? '#1a1a1a' : '#ffffff', true);
+      }
 
       await AsyncStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(value));
     } catch (error) {
@@ -58,7 +60,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content', true);
-    StatusBar.setBackgroundColor(isDark ? '#1a1a1a' : '#ffffff', true);
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(isDark ? '#1a1a1a' : '#ffffff', true);
+    }
   }, [isDark]);
 
   return (

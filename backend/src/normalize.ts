@@ -93,3 +93,18 @@ export function normalize(stream: StreamName, payload: unknown): ServerMessage |
       return normalizeTicker(payload as BinanceTicker);
   }
 }
+
+export function normalizeRestKline(symbol: string, row: unknown): KlineMessage | null {
+  if (!Array.isArray(row) || row.length < 6) return null;
+  return {
+    type: "kline",
+    symbol: symbol.toUpperCase(),
+    o: toNum(row[1]),
+    h: toNum(row[2]),
+    l: toNum(row[3]),
+    c: toNum(row[4]),
+    v: toNum(row[5]),
+    ts: typeof row[0] === "number" ? row[0] : Number(row[0]),
+    closed: true,
+  };
+}

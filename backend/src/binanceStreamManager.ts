@@ -4,6 +4,7 @@ import { logger } from "./logger";
 import type { StreamName } from "./types";
 
 const BINANCE_WS_BASE = "wss://stream.binance.com:9443/ws";
+const BINANCE_REST_BASE = "https://api.binance.com/api/v3";
 const RECONNECT_CAP_MS = 30_000;
 
 type StreamKey = `${string}@${string}`;
@@ -64,6 +65,15 @@ export class BinanceStreamManager extends EventEmitter {
     for (const [key, u] of this.upstreams) {
       this.teardown(key, u);
     }
+  }
+
+  async fetchHistoricalKlines(symbol: string, limit = 60): Promise<unknown[]> {
+    const url = `${BINANCE_REST_BASE}/klines?symbol=${symbol.toUpperCase()}&interval=1m&limit=${limit}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`binance REST ${res.status}: ${res.statusText}`);
+    }
+    return (await res.json()) as unknown[];
   }
 
   private connect(u: Upstream): void {

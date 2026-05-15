@@ -74,8 +74,8 @@ export function DebugScreen() {
         {recentTrades.length === 0 ? (
           <Text style={styles.empty}>waiting for trades…</Text>
         ) : (
-          recentTrades.map(t => (
-            <View key={`${t.ts}-${t.price}-${t.qty}`} style={styles.tradeRow}>
+          recentTrades.map((t, i) => (
+            <View key={i} style={styles.tradeRow}>
               <Text style={styles.tradePrice}>${t.price.toLocaleString()}</Text>
               <Text style={styles.tradeQty}>{t.qty.toFixed(6)}</Text>
             </View>
@@ -114,7 +114,7 @@ interface DebugStyles {
 const createStyles = (colors: Colors): DebugStyles => ({
   container: {
     flex: 1,
-    backgroundColor: colors.Greyscale[800],
+    backgroundColor: colors.Greyscale[0],
   },
   header: {
     paddingHorizontal: 16,
@@ -127,7 +127,7 @@ const createStyles = (colors: Colors): DebugStyles => ({
   },
   title: {
     ...texts.heading.heading6,
-    color: colors.Others.white,
+    color: colors.Greyscale[900],
   },
   state_idle: {
     ...texts.body.small.medium,
@@ -155,12 +155,12 @@ const createStyles = (colors: Colors): DebugStyles => ({
   },
   value: {
     ...texts.heading.heading5,
-    color: colors.Others.white,
+    color: colors.Greyscale[900],
     marginTop: 2,
   },
   priceValue: {
     ...texts.heading.heading2,
-    color: colors.Others.white,
+    color: colors.Greyscale[900],
     marginTop: 2,
   },
   changePositive: {
@@ -198,10 +198,10 @@ const createStyles = (colors: Colors): DebugStyles => ({
   },
   tradePrice: {
     ...texts.body.small.medium,
-    color: colors.Others.white,
+    color: colors.Greyscale[900],
   },
   tradeQty: {
     ...texts.body.small.regular,
-    color: colors.Greyscale[300],
+    color: colors.Greyscale[500],
   },
 });

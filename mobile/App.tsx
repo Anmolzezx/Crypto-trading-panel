@@ -1,6 +1,6 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from './app/theme/ThemeContext';
-import { DebugScreen } from './app/screens/DebugScreen';
+import { DebugScreen } from './app/screens/HomeScreen';
 
 function App() {
   return (

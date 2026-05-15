@@ -1,6 +1,7 @@
 import type { WebSocket } from "ws";
 import type { BinanceStreamManager, UpstreamPayload } from "./binanceStreamManager";
 import type { StreamName } from "./types";
+import { normalize } from "./normalize";
 import { logger } from "./logger";
 
 type SubKey = `${string}@${StreamName}`;
@@ -61,15 +62,16 @@ export class ClientHub {
   }
 
   private fanOut(event: UpstreamPayload): void {
+    const normalised = normalize(event.stream, event.payload);
+    if (!normalised) {
+      logger.warn("dropped unnormalisable payload", { symbol: event.symbol, stream: event.stream });
+      return;
+    }
     const key = makeSubKey(event.symbol, event.stream);
-    const envelope = JSON.stringify({
-      symbol: event.symbol,
-      stream: event.stream,
-      payload: event.payload,
-    });
+    const data = JSON.stringify(normalised);
     for (const client of this.clients.values()) {
       if (client.subs.has(key)) {
-        client.ws.send(envelope);
+        client.ws.send(data);
       }
     }
   }

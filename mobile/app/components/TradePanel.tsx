@@ -34,6 +34,8 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
     setAmount(normalized);
   };
 
+  const baseAsset = symbol.replace(/USDT$/, '');
+
   const onSubmit = () => {
     const parsed = Number(amount);
     if (!amount || Number.isNaN(parsed) || parsed <= 0) {
@@ -46,8 +48,8 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         ? `\n\nMarket price: $${lastPrice.toLocaleString()}`
         : '';
     Alert.alert(
-      `${verb} ${symbol}`,
-      `${verb} $${parsed.toLocaleString()} of ${symbol}.${priceLine}\n\n(Demo only — no real order placed.)`,
+      `${verb} ${baseAsset}`,
+      `${verb} $${parsed.toLocaleString()} of ${baseAsset}.${priceLine}`,
     );
   };
 
@@ -99,7 +101,7 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
 
       <Pressable style={styles.cta} onPress={onSubmit}>
         <Text style={styles.ctaLabel}>
-          {side === 'buy' ? 'Buy' : 'Sell'} {symbol}
+          {side === 'buy' ? 'Buy' : 'Sell'} {baseAsset}
         </Text>
       </Pressable>
     </View>
@@ -157,16 +159,27 @@ const createStyles = (
       backgroundColor: colors.Greyscale[50],
       borderRadius: 12,
       paddingHorizontal: scale(14),
-      height: scale(48),
+      height: scale(44),
       marginBottom: scale(12),
     },
     amountPrefix: [
       texts.heading.heading5,
-      { color: colors.Greyscale[500], marginRight: scale(6) },
+      {
+        color: colors.Greyscale[500],
+        marginRight: scale(6),
+        lineHeight: scale(44),
+      },
     ],
     amountInput: [
       texts.heading.heading5,
-      { flex: 1, color: colors.Greyscale[900], padding: 0 },
+      {
+        flex: 1,
+        color: colors.Greyscale[900],
+        padding: 0,
+        height: scale(44),
+        textAlignVertical: 'center' as const,
+        includeFontPadding: false,
+      },
     ],
     cta: {
       height: scale(48),

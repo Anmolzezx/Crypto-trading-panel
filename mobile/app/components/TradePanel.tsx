@@ -18,88 +18,10 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
   const [side, setSide] = useState<Side>('buy');
   const [amount, setAmount] = useState('');
 
-  const styles = useMemo(() => {
-    const vividBuy = isDark
-      ? colors.Alert.Success[50]
-      : colors.Alert.Success[100];
-    const vividSell = isDark
-      ? colors.Alert.Error[50]
-      : colors.Alert.Error[100];
-    const accent = side === 'buy' ? vividBuy : vividSell;
-
-    return {
-      container: {
-        paddingHorizontal: scale(16),
-        paddingTop: scale(12),
-        paddingBottom: scale(12),
-        borderTopWidth: 0.5,
-        borderTopColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
-        backgroundColor: colors.Greyscale[0],
-      },
-      toggleRow: {
-        flexDirection: 'row' as const,
-        backgroundColor: colors.Greyscale[50],
-        borderRadius: 999,
-        padding: 4,
-        marginBottom: scale(10),
-      },
-      toggleButton: {
-        flex: 1,
-        height: scale(34),
-        borderRadius: 999,
-        justifyContent: 'center' as const,
-        alignItems: 'center' as const,
-      },
-      toggleButtonActive: {
-        flex: 1,
-        height: scale(34),
-        borderRadius: 999,
-        justifyContent: 'center' as const,
-        alignItems: 'center' as const,
-        backgroundColor: accent,
-      },
-      toggleLabel: {
-        ...texts.body.small.semibold,
-        color: colors.Greyscale[500],
-      },
-      toggleLabelActive: {
-        ...texts.body.small.semibold,
-        color: colors.Others.white,
-      },
-      amountRow: {
-        flexDirection: 'row' as const,
-        alignItems: 'center' as const,
-        backgroundColor: colors.Greyscale[50],
-        borderRadius: 12,
-        paddingHorizontal: scale(14),
-        height: scale(48),
-        marginBottom: scale(12),
-      },
-      amountPrefix: {
-        ...texts.heading.heading5,
-        color: colors.Greyscale[500],
-        marginRight: scale(6),
-      },
-      amountInput: {
-        flex: 1,
-        ...texts.heading.heading5,
-        color: colors.Greyscale[900],
-        padding: 0,
-      },
-      cta: {
-        height: scale(48),
-        borderRadius: 24,
-        marginBottom: scale(8),
-        justifyContent: 'center' as const,
-        alignItems: 'center' as const,
-        backgroundColor: accent,
-      },
-      ctaLabel: {
-        ...texts.body.large.semibold,
-        color: colors.Others.white,
-      },
-    };
-  }, [colors, isDark, side]);
+  const styles = useMemo(
+    () => createStyles(colors, isDark, side),
+    [colors, isDark, side],
+  );
 
   const onSubmit = () => {
     const parsed = Number(amount);
@@ -166,3 +88,83 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
     </View>
   );
 }
+
+const createStyles = (
+  colors: ReturnType<typeof useColors>,
+  isDark: boolean,
+  side: Side,
+) => {
+  const vividBuy = colors.primary[500];
+  const vividSell = isDark ? colors.Alert.Error[50] : colors.Alert.Error[100];
+  const accent = side === 'buy' ? vividBuy : vividSell;
+
+  return {
+    container: {
+      paddingHorizontal: scale(16),
+      paddingTop: scale(12),
+      paddingBottom: scale(12),
+      borderTopWidth: 0.5,
+      borderTopColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
+      backgroundColor: colors.Greyscale[0],
+    },
+    toggleRow: {
+      flexDirection: 'row' as const,
+      backgroundColor: colors.Greyscale[50],
+      borderRadius: 999,
+      padding: 4,
+      marginBottom: scale(10),
+    },
+    toggleButton: {
+      flex: 1,
+      height: scale(34),
+      borderRadius: 999,
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+    },
+    toggleButtonActive: {
+      flex: 1,
+      height: scale(34),
+      borderRadius: 999,
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+      backgroundColor: accent,
+    },
+    toggleLabel: [
+      texts.body.small.semibold,
+      { color: colors.Greyscale[500] },
+    ],
+    toggleLabelActive: [
+      texts.body.small.semibold,
+      { color: colors.Others.white },
+    ],
+    amountRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: colors.Greyscale[50],
+      borderRadius: 12,
+      paddingHorizontal: scale(14),
+      height: scale(48),
+      marginBottom: scale(12),
+    },
+    amountPrefix: [
+      texts.heading.heading5,
+      { color: colors.Greyscale[500], marginRight: scale(6) },
+    ],
+    amountInput: [
+      texts.heading.heading5,
+      { flex: 1, color: colors.Greyscale[900], padding: 0 },
+    ],
+    cta: {
+      height: scale(48),
+      borderRadius: 24,
+      marginBottom: scale(8),
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+      backgroundColor: accent,
+    },
+    ctaLabel: [
+      texts.body.large.semibold,
+      { color: colors.Others.white },
+    ],
+  };
+};

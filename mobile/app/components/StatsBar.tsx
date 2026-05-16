@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Text, TextStyle, View, ViewStyle } from 'react-native';
+import { Text, View } from 'react-native';
 import { useColors } from '../styles/colors';
 import { texts } from '../styles/texts';
 import { useTheme } from '../theme/ThemeContext';
@@ -48,18 +48,12 @@ export function StatsBar({ high, low, volume }: StatsBarProps) {
   );
 }
 
-type Colors = ReturnType<typeof useColors>;
-
-interface StatsBarStyles {
-  container: ViewStyle;
-  stat: ViewStyle;
-  label: TextStyle;
-  value: TextStyle;
-}
-
-const createStyles = (colors: Colors, isDark: boolean): StatsBarStyles => ({
+const createStyles = (
+  colors: ReturnType<typeof useColors>,
+  isDark: boolean,
+) => ({
   container: {
-    flexDirection: 'row',
+    flexDirection: 'row' as const,
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderTopWidth: 0.5,
@@ -67,16 +61,13 @@ const createStyles = (colors: Colors, isDark: boolean): StatsBarStyles => ({
     borderColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
     marginTop: 8,
   },
-  stat: {
-    flex: 1,
-  },
-  label: {
-    ...texts.body.extraSmall.regular,
-    color: colors.Greyscale[500],
-  },
-  value: {
-    ...texts.body.medium.semibold,
-    color: colors.Greyscale[900],
-    marginTop: 2,
-  },
+  stat: { flex: 1 },
+  label: [
+    texts.body.extraSmall.regular,
+    { color: colors.Greyscale[500] },
+  ],
+  value: [
+    texts.body.medium.semibold,
+    { color: colors.Greyscale[900], marginTop: 2 },
+  ],
 });

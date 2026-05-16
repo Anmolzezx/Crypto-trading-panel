@@ -19,6 +19,7 @@ const WS_URL = 'ws://localhost:8080';
 export function HomeScreen() {
   const colors = useColors();
   const { isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
 
   const currentSymbol = useMarketStore(s => s.currentSymbol);
   const setSymbol = useMarketStore(s => s.setSymbol);
@@ -63,82 +64,6 @@ export function HomeScreen() {
     subscribe(currentSymbol, ['trade', 'kline_1m']);
     activeSymbolRef.current = currentSymbol;
   }, [state, subscribe, unsubscribe, currentSymbol]);
-
-  const styles = useMemo(() => {
-    const dot = {
-      width: scale(8),
-      height: scale(8),
-      borderRadius: scale(4),
-      marginRight: scale(6),
-    };
-    return {
-      container: {
-        flex: 1,
-        backgroundColor: colors.Greyscale[0],
-      },
-      statusRow: {
-        flexDirection: 'row' as const,
-        alignItems: 'center' as const,
-        paddingHorizontal: scale(16),
-        paddingTop: scale(12),
-      },
-      pickerRow: {
-        flexDirection: 'row' as const,
-        alignItems: 'center' as const,
-        paddingRight: scale(16),
-      },
-      pickerFlex: {
-        flex: 1,
-      },
-      statusDot_idle: { ...dot, backgroundColor: colors.Greyscale[400] },
-      statusDot_connecting: {
-        ...dot,
-        backgroundColor: colors.Alert.Warning[100],
-      },
-      statusDot_open: { ...dot, backgroundColor: colors.Alert.Success[100] },
-      statusDot_reconnecting: {
-        ...dot,
-        backgroundColor: colors.Alert.Error[100],
-      },
-      statusLabel: {
-        ...texts.body.extraSmall.regular,
-        color: colors.Greyscale[500],
-        textTransform: 'lowercase' as const,
-      },
-      tradesHeader: {
-        paddingHorizontal: scale(16),
-        paddingTop: scale(20),
-        paddingBottom: scale(8),
-      },
-      tradesHeaderLabel: {
-        ...texts.body.small.semibold,
-        color: colors.Greyscale[900],
-      },
-      listContent: {
-        paddingHorizontal: scale(16),
-      },
-      empty: {
-        ...texts.body.small.regular,
-        color: colors.Greyscale[400],
-        fontStyle: 'italic' as const,
-      },
-      tradeRow: {
-        flexDirection: 'row' as const,
-        justifyContent: 'space-between' as const,
-        paddingVertical: scale(6),
-        borderBottomWidth: 0.5,
-        borderBottomColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
-      },
-      tradePrice: {
-        ...texts.body.small.medium,
-        color: colors.Greyscale[900],
-      },
-      tradeQty: {
-        ...texts.body.small.regular,
-        color: colors.Greyscale[500],
-      },
-    };
-  }, [colors, isDark]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -197,3 +122,72 @@ export function HomeScreen() {
     </SafeAreaView>
   );
 }
+
+const createStyles = (
+  colors: ReturnType<typeof useColors>,
+  isDark: boolean,
+) => {
+  const dot = {
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
+    marginRight: scale(6),
+  };
+  return {
+    container: {
+      flex: 1,
+      backgroundColor: colors.Greyscale[0],
+    },
+    statusRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      paddingHorizontal: scale(16),
+      paddingTop: scale(12),
+    },
+    pickerRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      paddingRight: scale(16),
+    },
+    pickerFlex: { flex: 1 },
+    statusDot_idle: { ...dot, backgroundColor: colors.Greyscale[400] },
+    statusDot_connecting: { ...dot, backgroundColor: colors.Alert.Warning[100] },
+    statusDot_open: { ...dot, backgroundColor: colors.Alert.Success[100] },
+    statusDot_reconnecting: { ...dot, backgroundColor: colors.Alert.Error[100] },
+    statusLabel: [
+      texts.body.extraSmall.regular,
+      { color: colors.Greyscale[500], textTransform: 'lowercase' as const },
+    ],
+    tradesHeader: {
+      paddingHorizontal: scale(16),
+      paddingTop: scale(20),
+      paddingBottom: scale(8),
+    },
+    tradesHeaderLabel: [
+      texts.body.small.semibold,
+      { color: colors.Greyscale[900] },
+    ],
+    listContent: {
+      paddingHorizontal: scale(16),
+    },
+    empty: [
+      texts.body.small.regular,
+      { color: colors.Greyscale[400], fontStyle: 'italic' as const },
+    ],
+    tradeRow: {
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
+      paddingVertical: scale(6),
+      borderBottomWidth: 0.5,
+      borderBottomColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
+    },
+    tradePrice: [
+      texts.body.small.medium,
+      { color: colors.Greyscale[900] },
+    ],
+    tradeQty: [
+      texts.body.small.regular,
+      { color: colors.Greyscale[500] },
+    ],
+  };
+};

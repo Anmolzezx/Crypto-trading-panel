@@ -4,7 +4,11 @@ A Robinhood-inspired real-time crypto trading panel. A Node.js relay streams liv
 
 ## Demo
 
-> _Screen recording: [add Loom link here]_
+| Home (dark) | Home (light) | Recent trades |
+|---|---|---|
+| ![Home screen, dark mode](demo/home-dark.png) | ![Home screen, light mode](demo/home-light.png) | ![Recent trades tape](demo/trades-dark.png) |
+
+Full walkthrough (symbol switching, theme toggle, live trade tape, Buy/Sell flow): [Google Drive video](https://drive.google.com/file/d/1UuK408SOSxT_JdrtAG7_PD1qW6AlD29M/view?usp=sharing).
 
 ## Repository layout
 

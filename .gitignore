@@ -29,3 +29,7 @@ mobile/.expo/
 .vscode/
 .idea/
 *.swp
+
+# demo assets too large for GitHub (>100 MB) — host externally
+*.mov
+*.mp4

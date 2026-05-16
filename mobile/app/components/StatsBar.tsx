@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Text, TextStyle, View, ViewStyle } from 'react-native';
 import { useColors } from '../styles/colors';
 import { texts } from '../styles/texts';
+import { useTheme } from '../theme/ThemeContext';
 
 interface StatsBarProps {
   high: number | null;
@@ -26,7 +27,8 @@ function formatVolume(v: number | null): string {
 
 export function StatsBar({ high, low, volume }: StatsBarProps) {
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
 
   const items = [
     { label: '24h High', value: formatPrice(high) },
@@ -55,14 +57,14 @@ interface StatsBarStyles {
   value: TextStyle;
 }
 
-const createStyles = (colors: Colors): StatsBarStyles => ({
+const createStyles = (colors: Colors, isDark: boolean): StatsBarStyles => ({
   container: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderTopWidth: 0.5,
     borderBottomWidth: 0.5,
-    borderColor: colors.Greyscale[100],
+    borderColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
     marginTop: 8,
   },
   stat: {

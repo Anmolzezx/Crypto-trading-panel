@@ -12,11 +12,13 @@ import { useMarketSocket } from '../hooks/useMarketSocket';
 import { useMarketStore } from '../store/marketStore';
 import { useColors } from '../styles/colors';
 import { texts } from '../styles/texts';
+import { useTheme } from '../theme/ThemeContext';
 
 const WS_URL = 'ws://localhost:8080';
 
 export function HomeScreen() {
   const colors = useColors();
+  const { isDark } = useTheme();
 
   const currentSymbol = useMarketStore(s => s.currentSymbol);
   const setSymbol = useMarketStore(s => s.setSymbol);
@@ -107,8 +109,8 @@ export function HomeScreen() {
         flexDirection: 'row' as const,
         justifyContent: 'space-between' as const,
         paddingVertical: scale(6),
-        borderBottomWidth: 0.3,
-        borderBottomColor: colors.Greyscale[100],
+        borderBottomWidth: 0.5,
+        borderBottomColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
       },
       tradePrice: {
         ...texts.body.small.medium,
@@ -119,7 +121,7 @@ export function HomeScreen() {
         color: colors.Greyscale[500],
       },
     };
-  }, [colors]);
+  }, [colors, isDark]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

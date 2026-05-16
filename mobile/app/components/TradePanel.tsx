@@ -33,7 +33,7 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         paddingTop: scale(12),
         paddingBottom: scale(12),
         borderTopWidth: 0.5,
-        borderTopColor: colors.Greyscale[100],
+        borderTopColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
         backgroundColor: colors.Greyscale[0],
       },
       toggleRow: {

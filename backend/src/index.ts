@@ -62,7 +62,7 @@ wss.on("connection", (ws) => {
         hub.subscribe(ws, msg.symbol, msg.streams);
         return;
       case "unsubscribe":
-        hub.unsubscribe(ws, msg.symbol);
+        hub.unsubscribe(ws, msg.symbol, msg.streams);
         return;
       default:
         logger.warn("unknown action", { msg });

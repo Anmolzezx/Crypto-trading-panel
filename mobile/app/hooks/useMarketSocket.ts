@@ -88,8 +88,8 @@ export function useMarketSocket({ url, onMessage }: UseMarketSocketArgs) {
   );
 
   const unsubscribe = useCallback(
-    (symbol: string) => {
-      send({ action: 'unsubscribe', symbol });
+    (symbol: string, streams?: StreamName[]) => {
+      send({ action: 'unsubscribe', symbol, ...(streams ? { streams } : {}) });
     },
     [send],
   );

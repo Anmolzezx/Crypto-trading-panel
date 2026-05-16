@@ -15,6 +15,8 @@ const PAIRS: Pair[] = [
   { symbol: 'XRPUSDT', label: 'XRP' },
 ];
 
+export { PAIRS };
+
 interface SymbolPickerProps {
   current: string;
   onSelect: (symbol: string) => void;
@@ -49,12 +51,12 @@ export function SymbolPicker({ current, onSelect }: SymbolPickerProps) {
       },
       label: {
         fontSize: 12,
-        fontWeight: '600' as const,
+        fontWeight: '700' as const,
         color: colors.Greyscale[500],
       },
       labelActive: {
         fontSize: 12,
-        fontWeight: '600' as const,
+        fontWeight: '700' as const,
         color: colors.Greyscale[0],
       },
     }),

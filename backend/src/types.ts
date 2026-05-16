@@ -2,7 +2,7 @@ export type StreamName = "trade" | "kline_1m" | "ticker";
 
 export type ClientMessage =
   | { action: "subscribe"; symbol: string; streams: StreamName[] }
-  | { action: "unsubscribe"; symbol: string }
+  | { action: "unsubscribe"; symbol: string; streams?: StreamName[] }
   | { action: "ping" };
 
 export type StatusMessage = {

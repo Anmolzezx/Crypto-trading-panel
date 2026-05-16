@@ -11,7 +11,9 @@ const MAX_TRADES = 25;
 
 interface MarketState {
   currentSymbol: string;
-  ticker: TickerMessage | null;
+  // ticker for every symbol the client is watching (multi-symbol watchlist)
+  tickers: Record<string, TickerMessage>;
+  // active symbol's stream data only
   candles: KlineMessage[];
   recentTrades: TradeMessage[];
   prices: Record<string, number>;
@@ -39,7 +41,7 @@ function appendCandle(
 
 export const useMarketStore = create<MarketState>(set => ({
   currentSymbol: 'BTCUSDT',
-  ticker: null,
+  tickers: {},
   candles: [],
   recentTrades: [],
   prices: {},
@@ -47,7 +49,7 @@ export const useMarketStore = create<MarketState>(set => ({
   setSymbol: symbol =>
     set({
       currentSymbol: symbol.toUpperCase(),
-      ticker: null,
+      // tickers stay — they're for all symbols, not just the active one
       candles: [],
       recentTrades: [],
     }),
@@ -65,13 +67,16 @@ export const useMarketStore = create<MarketState>(set => ({
           if (msg.symbol !== state.currentSymbol) return state;
           return { candles: appendCandle(state.candles, msg) };
         case 'ticker':
-          if (msg.symbol !== state.currentSymbol) return state;
-          return { ticker: msg };
+          // accept tickers for ANY symbol we've subscribed to
+          return {
+            tickers: { ...state.tickers, [msg.symbol]: msg },
+            prices: { ...state.prices, [msg.symbol]: msg.lastPrice },
+          };
         default:
           return state;
       }
     }),
 
   reset: () =>
-    set({ ticker: null, candles: [], recentTrades: [], prices: {} }),
+    set({ tickers: {}, candles: [], recentTrades: [], prices: {} }),
 }));

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Chart } from '../components/Chart';
 import { PriceHeader } from '../components/PriceHeader';
 import { StatsBar } from '../components/StatsBar';
-import { SymbolPicker } from '../components/SymbolPicker';
+import { SymbolPicker, PAIRS } from '../components/SymbolPicker';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { TradePanel } from '../components/TradePanel';
 import { scale } from '../helpers/scaler';
@@ -22,7 +22,7 @@ export function HomeScreen() {
 
   const currentSymbol = useMarketStore(s => s.currentSymbol);
   const setSymbol = useMarketStore(s => s.setSymbol);
-  const ticker = useMarketStore(s => s.ticker);
+  const tickers = useMarketStore(s => s.tickers);
   const recentTrades = useMarketStore(s => s.recentTrades);
   const candles = useMarketStore(s => s.candles);
   const ingest = useMarketStore(s => s.ingest);
@@ -32,19 +32,36 @@ export function HomeScreen() {
     onMessage: ingest,
   });
 
-  const subscribedSymbolRef = useRef<string | null>(null);
+  const ticker = tickers[currentSymbol] ?? null;
+
+  // On (re)connect: subscribe to ticker for every watchlist symbol + trade+kline for the active one
+  const tickersBootstrappedRef = useRef(false);
   useEffect(() => {
     if (state !== 'open') {
-      subscribedSymbolRef.current = null;
+      tickersBootstrappedRef.current = false;
       return;
     }
-    const previous = subscribedSymbolRef.current;
+    if (tickersBootstrappedRef.current) return;
+    tickersBootstrappedRef.current = true;
+    for (const pair of PAIRS) {
+      subscribe(pair.symbol, ['ticker']);
+    }
+  }, [state, subscribe]);
+
+  // Active-symbol stream subscriptions: swap trade+kline as the user picks a different symbol
+  const activeSymbolRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (state !== 'open') {
+      activeSymbolRef.current = null;
+      return;
+    }
+    const previous = activeSymbolRef.current;
     if (previous === currentSymbol) return;
     if (previous) {
-      unsubscribe(previous);
+      unsubscribe(previous, ['trade', 'kline_1m']);
     }
-    subscribe(currentSymbol, ['trade', 'kline_1m', 'ticker']);
-    subscribedSymbolRef.current = currentSymbol;
+    subscribe(currentSymbol, ['trade', 'kline_1m']);
+    activeSymbolRef.current = currentSymbol;
   }, [state, subscribe, unsubscribe, currentSymbol]);
 
   const styles = useMemo(() => {

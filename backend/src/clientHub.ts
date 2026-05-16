@@ -79,13 +79,15 @@ export class ClientHub {
     ws.send(JSON.stringify(msg));
   }
 
-  unsubscribe(ws: WebSocket, symbol: string): void {
+  unsubscribe(ws: WebSocket, symbol: string, streams?: StreamName[]): void {
     const client = this.clients.get(ws);
     if (!client) return;
     const lower = symbol.toLowerCase();
+    const streamSet = streams ? new Set(streams) : null;
     for (const key of [...client.subs]) {
       if (!key.startsWith(`${lower}@`)) continue;
       const [s, stream] = key.split("@") as [string, StreamName];
+      if (streamSet && !streamSet.has(stream)) continue;
       client.subs.delete(key);
       this.binance.release(s, stream);
     }

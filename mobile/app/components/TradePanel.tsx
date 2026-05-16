@@ -19,7 +19,6 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
   const [amount, setAmount] = useState('');
 
   const styles = useMemo(() => {
-    // Pick the vivid shade per theme (palette is flipped between light/dark)
     const vividBuy = isDark
       ? colors.Alert.Success[50]
       : colors.Alert.Success[100];

@@ -5,6 +5,7 @@ import { Chart } from '../components/Chart';
 import { PriceHeader } from '../components/PriceHeader';
 import { StatsBar } from '../components/StatsBar';
 import { SymbolPicker } from '../components/SymbolPicker';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { TradePanel } from '../components/TradePanel';
 import { scale } from '../helpers/scaler';
 import { useMarketSocket } from '../hooks/useMarketSocket';
@@ -61,6 +62,14 @@ export function HomeScreen() {
         alignItems: 'center' as const,
         paddingHorizontal: scale(16),
         paddingTop: scale(12),
+      },
+      pickerRow: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        paddingRight: scale(16),
+      },
+      pickerFlex: {
+        flex: 1,
       },
       statusDot_idle: { ...dot, backgroundColor: colors.Greyscale[400] },
       statusDot_connecting: {
@@ -121,7 +130,12 @@ export function HomeScreen() {
         </View>
       ) : null}
 
-      <SymbolPicker current={currentSymbol} onSelect={setSymbol} />
+      <View style={styles.pickerRow}>
+        <View style={styles.pickerFlex}>
+          <SymbolPicker current={currentSymbol} onSelect={setSymbol} />
+        </View>
+        <ThemeToggle />
+      </View>
 
       <ScrollView contentInsetAdjustmentBehavior="never">
         <PriceHeader

@@ -17,6 +17,7 @@ export function useMarketSocket({ url, onMessage }: UseMarketSocketArgs) {
   const attemptRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handlerRef = useRef(onMessage);
+  const didUnmountRef = useRef(false);
 
   useEffect(() => {
     handlerRef.current = onMessage;
@@ -48,6 +49,7 @@ export function useMarketSocket({ url, onMessage }: UseMarketSocketArgs) {
 
     ws.onclose = () => {
       wsRef.current = null;
+      if (didUnmountRef.current) return;
       attemptRef.current += 1;
       const base = Math.min(1000 * 2 ** Math.min(attemptRef.current - 1, 5), RECONNECT_CAP_MS);
       const jitter = Math.random() * 500;
@@ -58,8 +60,10 @@ export function useMarketSocket({ url, onMessage }: UseMarketSocketArgs) {
   }, [url]);
 
   useEffect(() => {
+    didUnmountRef.current = false;
     connect();
     return () => {
+      didUnmountRef.current = true;
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
@@ -67,7 +71,6 @@ export function useMarketSocket({ url, onMessage }: UseMarketSocketArgs) {
       const ws = wsRef.current;
       wsRef.current = null;
       if (ws) {
-        ws.onclose = null;
         ws.close();
       }
     };

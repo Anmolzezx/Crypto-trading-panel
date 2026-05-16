@@ -31,7 +31,9 @@ function buildSmoothPath(points: Array<[number, number]>): string {
     const curr = rest[i];
     const cx = (prev[0] + curr[0]) / 2;
     const cy = (prev[1] + curr[1]) / 2;
-    d += ` Q ${prev[0].toFixed(2)} ${prev[1].toFixed(2)} ${cx.toFixed(2)} ${cy.toFixed(2)}`;
+    d += ` Q ${prev[0].toFixed(2)} ${prev[1].toFixed(2)} ${cx.toFixed(
+      2,
+    )} ${cy.toFixed(2)}`;
   }
   const last = points[points.length - 1];
   d += ` L ${last[0].toFixed(2)} ${last[1].toFixed(2)}`;
@@ -71,7 +73,9 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
     const maxPoint = points[maxIdx]!;
 
     const linePath = buildSmoothPath(points);
-    const fillPath = `${linePath} L ${lastPoint[0].toFixed(2)} ${(TOP_PADDING + plotHeight).toFixed(2)} L 0 ${(TOP_PADDING + plotHeight).toFixed(2)} Z`;
+    const fillPath = `${linePath} L ${lastPoint[0].toFixed(2)} ${(
+      TOP_PADDING + plotHeight
+    ).toFixed(2)} L 0 ${(TOP_PADDING + plotHeight).toFixed(2)} Z`;
 
     return {
       linePath,
@@ -104,7 +108,6 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
           </LinearGradient>
         </Defs>
 
-        {/* horizontal grid lines */}
         {[0.25, 0.5, 0.75].map(p => {
           const y = TOP_PADDING + plotHeight * p;
           return (
@@ -121,10 +124,8 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
           );
         })}
 
-        {/* gradient fill under the line */}
         <Path d={data.fillPath} fill={`url(#${gradientId})`} />
 
-        {/* smoothed line */}
         <Path
           d={data.linePath}
           fill="none"
@@ -134,7 +135,6 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
           strokeLinecap="round"
         />
 
-        {/* max price label */}
         <SvgText
           x={Math.min(Math.max(data.maxPoint[0], 28), chartWidth - 28)}
           y={Math.max(data.maxPoint[1] - 8, 12)}
@@ -148,10 +148,12 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
           })}`}
         </SvgText>
 
-        {/* min price label */}
         <SvgText
           x={Math.min(Math.max(data.minPoint[0], 28), chartWidth - 28)}
-          y={Math.min(data.minPoint[1] + 16, TOP_PADDING + plotHeight + BOTTOM_PADDING - 2)}
+          y={Math.min(
+            data.minPoint[1] + 16,
+            TOP_PADDING + plotHeight + BOTTOM_PADDING - 2,
+          )}
           fontSize={10}
           fontWeight="600"
           fill={labelColor}
@@ -162,7 +164,6 @@ export function Chart({ candles, height = DEFAULT_HEIGHT }: ChartProps) {
           })}`}
         </SvgText>
 
-        {/* current price marker — halo + dot */}
         <Circle
           cx={data.lastPoint[0]}
           cy={data.lastPoint[1]}

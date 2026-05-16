@@ -23,6 +23,17 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
     [colors, isDark, side],
   );
 
+  const handleAmountChange = (text: string) => {
+    const digitsAndDot = text.replace(/[^0-9.]/g, '');
+    const firstDot = digitsAndDot.indexOf('.');
+    const normalized =
+      firstDot === -1
+        ? digitsAndDot
+        : digitsAndDot.slice(0, firstDot + 1) +
+          digitsAndDot.slice(firstDot + 1).replace(/\./g, '');
+    setAmount(normalized);
+  };
+
   const onSubmit = () => {
     const parsed = Number(amount);
     if (!amount || Number.isNaN(parsed) || parsed <= 0) {
@@ -31,7 +42,9 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
     }
     const verb = side === 'buy' ? 'Buy' : 'Sell';
     const priceLine =
-      lastPrice !== null ? `\n\nMarket price: $${lastPrice.toLocaleString()}` : '';
+      lastPrice !== null
+        ? `\n\nMarket price: $${lastPrice.toLocaleString()}`
+        : '';
     Alert.alert(
       `${verb} ${symbol}`,
       `${verb} $${parsed.toLocaleString()} of ${symbol}.${priceLine}\n\n(Demo only — no real order placed.)`,
@@ -43,7 +56,9 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
       <View style={styles.toggleRow}>
         <Pressable
           onPress={() => setSide('buy')}
-          style={side === 'buy' ? styles.toggleButtonActive : styles.toggleButton}
+          style={
+            side === 'buy' ? styles.toggleButtonActive : styles.toggleButton
+          }
         >
           <Text
             style={
@@ -55,7 +70,9 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         </Pressable>
         <Pressable
           onPress={() => setSide('sell')}
-          style={side === 'sell' ? styles.toggleButtonActive : styles.toggleButton}
+          style={
+            side === 'sell' ? styles.toggleButtonActive : styles.toggleButton
+          }
         >
           <Text
             style={
@@ -72,7 +89,7 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         <TextInput
           style={styles.amountInput}
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={handleAmountChange}
           placeholder="0.00"
           placeholderTextColor={colors.Greyscale[400]}
           keyboardType="decimal-pad"
@@ -129,10 +146,7 @@ const createStyles = (
       alignItems: 'center' as const,
       backgroundColor: accent,
     },
-    toggleLabel: [
-      texts.body.small.semibold,
-      { color: colors.Greyscale[500] },
-    ],
+    toggleLabel: [texts.body.small.semibold, { color: colors.Greyscale[500] }],
     toggleLabelActive: [
       texts.body.small.semibold,
       { color: colors.Others.white },
@@ -162,9 +176,6 @@ const createStyles = (
       alignItems: 'center' as const,
       backgroundColor: accent,
     },
-    ctaLabel: [
-      texts.body.large.semibold,
-      { color: colors.Others.white },
-    ],
+    ctaLabel: [texts.body.large.semibold, { color: colors.Others.white }],
   };
 };

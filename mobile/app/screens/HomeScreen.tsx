@@ -35,7 +35,6 @@ export function HomeScreen() {
 
   const ticker = tickers[currentSymbol] ?? null;
 
-  // On (re)connect: subscribe to ticker for every watchlist symbol + trade+kline for the active one
   const tickersBootstrappedRef = useRef(false);
   useEffect(() => {
     if (state !== 'open') {
@@ -49,7 +48,6 @@ export function HomeScreen() {
     }
   }, [state, subscribe]);
 
-  // Active-symbol stream subscriptions: swap trade+kline as the user picks a different symbol
   const activeSymbolRef = useRef<string | null>(null);
   useEffect(() => {
     if (state !== 'open') {
@@ -151,9 +149,15 @@ const createStyles = (
     },
     pickerFlex: { flex: 1 },
     statusDot_idle: { ...dot, backgroundColor: colors.Greyscale[400] },
-    statusDot_connecting: { ...dot, backgroundColor: colors.Alert.Warning[100] },
+    statusDot_connecting: {
+      ...dot,
+      backgroundColor: colors.Alert.Warning[100],
+    },
     statusDot_open: { ...dot, backgroundColor: colors.Alert.Success[100] },
-    statusDot_reconnecting: { ...dot, backgroundColor: colors.Alert.Error[100] },
+    statusDot_reconnecting: {
+      ...dot,
+      backgroundColor: colors.Alert.Error[100],
+    },
     statusLabel: [
       texts.body.extraSmall.regular,
       { color: colors.Greyscale[500], textTransform: 'lowercase' as const },
@@ -181,13 +185,7 @@ const createStyles = (
       borderBottomWidth: 0.5,
       borderBottomColor: isDark ? colors.Greyscale[100] : colors.Greyscale[300],
     },
-    tradePrice: [
-      texts.body.small.medium,
-      { color: colors.Greyscale[900] },
-    ],
-    tradeQty: [
-      texts.body.small.regular,
-      { color: colors.Greyscale[500] },
-    ],
+    tradePrice: [texts.body.small.medium, { color: colors.Greyscale[900] }],
+    tradeQty: [texts.body.small.regular, { color: colors.Greyscale[500] }],
   };
 };

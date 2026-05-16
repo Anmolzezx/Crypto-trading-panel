@@ -3,6 +3,7 @@ import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { scale } from '../helpers/scaler';
 import { useColors } from '../styles/colors';
 import { texts } from '../styles/texts';
+import { useTheme } from '../theme/ThemeContext';
 
 type Side = 'buy' | 'sell';
 
@@ -13,12 +14,19 @@ interface TradePanelProps {
 
 export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
   const colors = useColors();
+  const { isDark } = useTheme();
   const [side, setSide] = useState<Side>('buy');
   const [amount, setAmount] = useState('');
 
   const styles = useMemo(() => {
-    const accent =
-      side === 'buy' ? colors.Alert.Success[100] : colors.Alert.Error[100];
+    // Pick the vivid shade per theme (palette is flipped between light/dark)
+    const vividBuy = isDark
+      ? colors.Alert.Success[50]
+      : colors.Alert.Success[100];
+    const vividSell = isDark
+      ? colors.Alert.Error[50]
+      : colors.Alert.Error[100];
+    const accent = side === 'buy' ? vividBuy : vividSell;
 
     return {
       container: {
@@ -49,7 +57,7 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         borderRadius: 999,
         justifyContent: 'center' as const,
         alignItems: 'center' as const,
-        backgroundColor: colors.Greyscale[900],
+        backgroundColor: accent,
       },
       toggleLabel: {
         ...texts.body.small.semibold,
@@ -57,7 +65,7 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
       },
       toggleLabelActive: {
         ...texts.body.small.semibold,
-        color: accent,
+        color: colors.Others.white,
       },
       amountRow: {
         flexDirection: 'row' as const,
@@ -80,8 +88,9 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         padding: 0,
       },
       cta: {
-        height: scale(52),
-        borderRadius: 14,
+        height: scale(48),
+        borderRadius: 24,
+        marginBottom: scale(8),
         justifyContent: 'center' as const,
         alignItems: 'center' as const,
         backgroundColor: accent,
@@ -91,7 +100,7 @@ export function TradePanel({ symbol, lastPrice }: TradePanelProps) {
         color: colors.Others.white,
       },
     };
-  }, [colors, side]);
+  }, [colors, isDark, side]);
 
   const onSubmit = () => {
     const parsed = Number(amount);
